@@ -2,6 +2,7 @@ import React, { Component } from "react";
 
 import Image from "../../../components/Image/Image";
 import "./SinglePost.css";
+import { useParams } from "react-router-dom";
 
 class SinglePost extends Component {
   state = {
@@ -13,6 +14,8 @@ class SinglePost extends Component {
   };
 
   componentDidMount() {
+    const params = useParams();
+    console.log(params);
     const postId = this.props.match.params.postId;
     fetch(`http://localhost:8080/feed/post/${postId}`, {
       headers: {

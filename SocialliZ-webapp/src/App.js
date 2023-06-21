@@ -1,6 +1,6 @@
-import React, { Component, Fragment } from "react";
-import { Route, Switch, Redirect, withRouter } from "react-router-dom";
-
+import React, { Fragment, useEffect, useState } from "react";
+import { Route, Routes, useNavigate } from "react-router-dom";
+import axios from "axios";
 import Layout from "./components/Layout/Layout";
 import Backdrop from "./components/Backdrop/Backdrop";
 import Toolbar from "./components/Toolbar/Toolbar";
@@ -13,18 +13,20 @@ import LoginPage from "./pages/Auth/Login";
 import SignupPage from "./pages/Auth/Signup";
 import "./App.css";
 
-class App extends Component {
-  state = {
-    showBackdrop: false,
-    showMobileNav: false,
-    isAuth: false,
-    token: null,
-    userId: null,
-    authLoading: false,
-    error: null,
-  };
+const App = () => {
+  axios.defaults.baseURL = "http://localhost:8080";
+  axios.defaults.headers.post["Content-Type"] = "application/json";
+  const navigate = useNavigate();
 
-  componentDidMount() {
+  const [showBackdrop, setShowBackdrop] = useState(false);
+  const [showMobileNav, setShowMobileNav] = useState(false);
+  const [isAuth, setIsAuth] = useState(false);
+  const [token, setToken] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [error, setError] = useState(null);
+  const [authLoading, setAuthLoading] = useState(false);
+
+  useEffect(() => {
     const token = localStorage.getItem("token");
     const expiryDate = localStorage.getItem("expiryDate");
     if (!token || !expiryDate) {
@@ -37,208 +39,157 @@ class App extends Component {
     const userId = localStorage.getItem("userId");
     const remainingMilliseconds =
       new Date(expiryDate).getTime() - new Date().getTime();
-    this.setState({ isAuth: true, token: token, userId: userId });
-    this.setAutoLogout(remainingMilliseconds);
-  }
+    setIsAuth(true);
+    setToken(token);
+    setUserId(userId);
+    setAutoLogout(remainingMilliseconds);
+  });
 
-  mobileNavHandler = (isOpen) => {
+  const mobileNavHandler = (isOpen) => {
     this.setState({ showMobileNav: isOpen, showBackdrop: isOpen });
   };
 
-  backdropClickHandler = () => {
+  const backdropClickHandler = () => {
     this.setState({ showBackdrop: false, showMobileNav: false, error: null });
   };
 
-  logoutHandler = () => {
-    this.setState({ isAuth: false, token: null });
+  const logoutHandler = () => {
+    setIsAuth(false);
+    setToken(null);
     localStorage.removeItem("token");
     localStorage.removeItem("expiryDate");
     localStorage.removeItem("userId");
   };
 
-  loginHandler = (event, authData) => {
+  const loginHandler = async (event, authData) => {
     event.preventDefault();
-    this.setState({ authLoading: true });
-    fetch("http://localhost:8080/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    setAuthLoading(true);
+    const response = await axios
+      .post("/auth/login", {
         email: authData.email,
         password: authData.password,
-      }),
-    })
-      .then((res) => {
-        if (res.status === 422) {
-          throw new Error("Validation failed.");
-        }
-        if (res.status !== 200 && res.status !== 201) {
-          console.log("Error!");
-          throw new Error("Could not authenticate you!");
-        }
-        return res.json();
       })
-      .then((resData) => {
-        console.log(resData);
-        this.setState({
-          isAuth: true,
-          token: resData.token,
-          authLoading: false,
-          userId: resData.userId,
-        });
-        localStorage.setItem("token", resData.token);
-        localStorage.setItem("userId", resData.userId);
-        const remainingMilliseconds = 60 * 60 * 1000;
-        const expiryDate = new Date(
-          new Date().getTime() + remainingMilliseconds
-        );
-        localStorage.setItem("expiryDate", expiryDate.toISOString());
-        this.setAutoLogout(remainingMilliseconds);
-      })
-      .catch((err) => {
-        console.log(err);
-        this.setState({
-          isAuth: false,
-          authLoading: false,
-          error: err,
-        });
+      .catch((error) => {
+        console.log(error);
+        setIsAuth(false);
+        setAuthLoading(false);
+        setError(error);
       });
+    console.log(response);
+
+    // Checking if the user is authenticated successfully based on status code
+    if (response.status === 422) {
+      throw new Error("Validation Failed.");
+    } else if (response.status !== 200 && response.status !== 201) {
+      throw new Error("Could not authenticate you!");
+    }
+    // By executing the following code, it is known that the user is authenticated
+    setIsAuth(true);
+    setUserId(response.data.userId);
+    setToken(response.data.token);
+    setAuthLoading(false);
+    localStorage.setItem("token", response.data.token);
+    localStorage.setItem("userId", response.data.userId);
+    const remainingMilliseconds = 60 * 60 * 1000;
+    const expiryDate = new Date(new Date().getTime() + remainingMilliseconds);
+    localStorage.setItem("expiryDate", expiryDate.toISOString());
+    setAutoLogout(remainingMilliseconds);
   };
 
-  signupHandler = (event, authData) => {
+  const signupHandler = async (event, authData) => {
     event.preventDefault();
-    this.setState({ authLoading: true });
-    fetch("http://localhost:8080/auth/signup", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    setAuthLoading(true);
+    const response = await axios
+      .put("/auth/signup", {
         email: authData.signupForm.email.value,
         password: authData.signupForm.password.value,
         name: authData.signupForm.name.value,
-      }),
-    })
-      .then((res) => {
-        if (res.status === 422) {
-          throw new Error(
-            "Validation failed. Make sure the email address isn't used yet!"
-          );
-        }
-        if (res.status !== 200 && res.status !== 201) {
-          console.log("Error!");
-          throw new Error("Creating a user failed!");
-        }
-        return res.json();
       })
-      .then((resData) => {
-        console.log(resData);
-        this.setState({ isAuth: false, authLoading: false });
-        this.props.history.replace("/");
-      })
-      .catch((err) => {
-        console.log(err);
-        this.setState({
-          isAuth: false,
-          authLoading: false,
-          error: err,
-        });
+      .catch((error) => {
+        console.log(error);
+        setIsAuth(false);
+        setAuthLoading(false);
+        setError(error);
       });
+    console.log(response);
+    // User creation failed
+    if (response.status === 422) {
+      throw new Error(
+        "Signup failed. Make sure the email address isn't used yet!"
+      );
+    }
+    if (response.status !== 200 && response.status !== 201) {
+      console.log("Error!");
+      throw new Error("Creating a user failed!");
+    }
+    // User created
+    setIsAuth(false);
+    setAuthLoading(false);
+    navigate("/");
   };
 
-  setAutoLogout = (milliseconds) => {
+  const setAutoLogout = (milliseconds) => {
     setTimeout(() => {
-      this.logoutHandler();
+      logoutHandler();
     }, milliseconds);
   };
 
-  errorHandler = () => {
-    this.setState({ error: null });
+  const errorHandler = () => {
+    setError(null);
   };
 
-  render() {
-    let routes = (
-      <Switch>
+  let routes = (
+    <Routes>
+      <Route
+        path="/"
+        element={<LoginPage onLogin={loginHandler} loading={authLoading} />}
+      />
+      <Route
+        path="/signup"
+        element={<SignupPage onSignup={signupHandler} loading={authLoading} />}
+      />
+    </Routes>
+  );
+
+  if (isAuth) {
+    routes = (
+      <Routes>
+        <Route path="/" element={<FeedPage userId={userId} token={token} />} />
         <Route
-          path="/"
-          exact
-          render={(props) => (
-            <LoginPage
-              {...props}
-              onLogin={this.loginHandler}
-              loading={this.state.authLoading}
-            />
-          )}
+          path="/:postId"
+          element={<SinglePostPage userId={userId} token={token} />}
         />
-        <Route
-          path="/signup"
-          exact
-          render={(props) => (
-            <SignupPage
-              {...props}
-              onSignup={this.signupHandler}
-              loading={this.state.authLoading}
-            />
-          )}
-        />
-        <Redirect to="/" />
-      </Switch>
-    );
-    if (this.state.isAuth) {
-      routes = (
-        <Switch>
-          <Route
-            path="/"
-            exact
-            render={(props) => (
-              <FeedPage userId={this.state.userId} token={this.state.token} />
-            )}
-          />
-          <Route
-            path="/:postId"
-            render={(props) => (
-              <SinglePostPage
-                {...props}
-                userId={this.state.userId}
-                token={this.state.token}
-              />
-            )}
-          />
-          <Redirect to="/" />
-        </Switch>
-      );
-    }
-    return (
-      <Fragment>
-        {this.state.showBackdrop && (
-          <Backdrop onClick={this.backdropClickHandler} />
-        )}
-        <ErrorHandler error={this.state.error} onHandle={this.errorHandler} />
-        <Layout
-          header={
-            <Toolbar>
-              <MainNavigation
-                onOpenMobileNav={this.mobileNavHandler.bind(this, true)}
-                onLogout={this.logoutHandler}
-                isAuth={this.state.isAuth}
-              />
-            </Toolbar>
-          }
-          mobileNav={
-            <MobileNavigation
-              open={this.state.showMobileNav}
-              mobile
-              onChooseItem={this.mobileNavHandler.bind(this, false)}
-              onLogout={this.logoutHandler}
-              isAuth={this.state.isAuth}
-            />
-          }
-        />
-        {routes}
-      </Fragment>
+      </Routes>
     );
   }
-}
 
-export default withRouter(App);
+  return (
+    <Fragment>
+      {showBackdrop && <Backdrop onClick={backdropClickHandler} />}
+      <ErrorHandler error={error} onHandle={errorHandler} />
+      <Layout
+        header={
+          <Toolbar>
+            <MainNavigation
+              onOpenMobileNav={mobileNavHandler.bind(this, true)}
+              onLogout={logoutHandler}
+              isAuth={isAuth}
+            />
+          </Toolbar>
+        }
+        mobileNav={
+          <MobileNavigation
+            open={showMobileNav}
+            mobile
+            onChooseItem={mobileNavHandler.bind(this, false)}
+            onLogout={logoutHandler}
+            isAuth={isAuth}
+          />
+        }
+      />
+      {routes}
+    </Fragment>
+  );
+};
+
+export default App;
