@@ -1,0 +1,6 @@
+# Excluding packages
+node_modules
+
+# Excluding environment variables
+.env
+
