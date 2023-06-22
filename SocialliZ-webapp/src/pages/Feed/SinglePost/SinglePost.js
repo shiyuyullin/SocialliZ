@@ -1,61 +1,59 @@
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
 
 import Image from "../../../components/Image/Image";
 import "./SinglePost.css";
 import { useParams } from "react-router-dom";
+import axios from "axios";
 
-class SinglePost extends Component {
-  state = {
-    title: "",
-    author: "",
-    date: "",
-    image: "",
-    content: "",
-  };
+const SinglePost = ({ userId, token }) => {
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
+  const [date, setDate] = useState("");
+  const [image, setImage] = useState("");
+  const [content, setContent] = useState("");
+  const [status, setStatus] = useState("");
 
-  componentDidMount() {
-    const params = useParams();
-    console.log(params);
-    const postId = this.props.match.params.postId;
-    fetch(`http://localhost:8080/feed/post/${postId}`, {
-      headers: {
-        Authorization: "Bearer " + this.props.token,
-      },
-    })
-      .then((res) => {
-        if (res.status !== 200) {
-          throw new Error("Failed to fetch status");
-        }
-        return res.json();
-      })
-      .then((resData) => {
-        this.setState({
-          title: resData.post.title,
-          author: resData.post.creator.name,
-          image: `http://localhost:8080/${resData.post.imageUrl}`,
-          date: new Date(resData.post.createdAt).toLocaleDateString("en-US"),
-          content: resData.post.content,
-        });
-      })
-      .catch((err) => {
-        console.log(err);
+  const { postId } = useParams();
+
+  useEffect(() => {
+    async function fetchPost() {
+      const response = await axios.get(`/feed/post/${postId}`, {
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+        },
       });
-  }
+      return response;
+    }
+    fetchPost().then((res) => {
+      if (res.status !== 200) {
+        throw new Error("Failed to fetch status");
+      }
+      // Retrieved the post with postId
+      const post = res.data.post;
+      const creator = res.data.creator;
+      console.log(creator);
+      setTitle(post.title);
+      setAuthor(creator.name);
+      setDate(new Date(post.createdAt).toLocaleDateString("en-US"));
+      setImage(`http://localhost:8080/${post.imageUrl}`);
+      setContent(post.content);
+      setStatus(creator.status);
+    });
+  }, [postId]);
 
-  render() {
-    return (
-      <section className="single-post">
-        <h1>{this.state.title}</h1>
-        <h2>
-          Created by {this.state.author} on {this.state.date}
-        </h2>
-        <div className="single-post__image">
-          <Image contain imageUrl={this.state.image} />
-        </div>
-        <p>{this.state.content}</p>
-      </section>
-    );
-  }
-}
+  return (
+    <section className="single-post">
+      <h1>{title}</h1>
+      <h2>
+        Created by {status} {author} on {date}
+      </h2>
+      <div className="single-post__image">
+        <Image contain imageUrl={image} />
+      </div>
+      <p>{content}</p>
+    </section>
+  );
+};
 
 export default SinglePost;

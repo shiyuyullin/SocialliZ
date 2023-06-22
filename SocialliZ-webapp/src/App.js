@@ -15,7 +15,6 @@ import "./App.css";
 
 const App = () => {
   axios.defaults.baseURL = "http://localhost:8080";
-  axios.defaults.headers.post["Content-Type"] = "application/json";
   const navigate = useNavigate();
 
   const [showBackdrop, setShowBackdrop] = useState(false);
@@ -33,7 +32,7 @@ const App = () => {
       return;
     }
     if (new Date(expiryDate) <= new Date()) {
-      this.logoutHandler();
+      logoutHandler();
       return;
     }
     const userId = localStorage.getItem("userId");
@@ -65,10 +64,18 @@ const App = () => {
     event.preventDefault();
     setAuthLoading(true);
     const response = await axios
-      .post("/auth/login", {
-        email: authData.email,
-        password: authData.password,
-      })
+      .post(
+        "/auth/login",
+        {
+          email: authData.email,
+          password: authData.password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
       .catch((error) => {
         console.log(error);
         setIsAuth(false);
@@ -100,11 +107,19 @@ const App = () => {
     event.preventDefault();
     setAuthLoading(true);
     const response = await axios
-      .put("/auth/signup", {
-        email: authData.signupForm.email.value,
-        password: authData.signupForm.password.value,
-        name: authData.signupForm.name.value,
-      })
+      .put(
+        "/auth/signup",
+        {
+          email: authData.signupForm.email.value,
+          password: authData.signupForm.password.value,
+          name: authData.signupForm.name.value,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
       .catch((error) => {
         console.log(error);
         setIsAuth(false);
