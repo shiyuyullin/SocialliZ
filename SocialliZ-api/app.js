@@ -8,6 +8,8 @@ require("dotenv").config();
 
 const feedRoutes = require("./routes/feed");
 const authRoutes = require("./routes/auth");
+const post = require("./models/post");
+const { generateRandomPosts } = require("./db-data-generator/randomPosts");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -34,8 +36,6 @@ const fileFilter = (req, file, cb) => {
 const app = express();
 const MONGODB_URI = process.env.MONGODB_CONNECTION;
 
-console.log("Starting app");
-
 app.use(cors());
 app.use(bodyParser.json());
 app.use("/images", express.static(path.join(__dirname, "images")));
@@ -51,19 +51,16 @@ app.use((error, req, res, next) => {
   res.status(statusCode).json({ message: message, data: data });
 });
 
+// generating some test data
+// const posts = generateRandomPosts(5);
+// console.log(posts);
+
 mongoose
   .connect(MONGODB_URI)
   .then((result) => {
     const server = app.listen(8080);
-    const io = require("socket.io")(server, {
-      cors: {
-        origin: "*",
-        methods: ["GET", "POST"],
-      },
-    });
-    io.on("connection", (socket) => {
-      console.log("Client connected");
-    });
+    // Saving test data into database
+    // post.bulkSave(posts);
   })
   .catch((err) => console.log(err));
 

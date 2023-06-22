@@ -6,36 +6,25 @@ const User = require("../models/user");
 
 exports.getPost = async (req, res, next) => {
   const postId = req.params.postId;
-  const post = await Post.findById(postId).catch((err) => {
-    if (!err.statusCode) {
-      err.statusCode = 500;
-    }
-    next(err);
-  });
+  const post = await Post.findById(postId)
+    .populate("creator")
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
   if (!post) {
     const error = new Error("Could not find post");
     error.statusCode = 404;
     throw error;
   }
-  const creator = await User.findById(post.creator.toString()).catch((err) => {
-    if (!err.statusCode) {
-      err.statusCode = 500;
-    }
-    next(err);
-  });
-  if (!creator) {
-    const error = new Error("Could not find matching creator");
-    error.statusCode = 404;
-    throw error;
-  }
-  res
-    .status(200)
-    .json({ message: "post fetched", post: post, creator: creator });
+  res.status(200).json({ message: "post fetched", post: post });
 };
 
 exports.getPosts = (req, res, next) => {
   const currentPage = req.query.page;
-  const perPage = 2;
+  const perPage = 5;
   let totalPosts;
   Post.find()
     .countDocuments()

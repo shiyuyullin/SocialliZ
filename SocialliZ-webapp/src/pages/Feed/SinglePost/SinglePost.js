@@ -31,14 +31,13 @@ const SinglePost = ({ userId, token }) => {
       }
       // Retrieved the post with postId
       const post = res.data.post;
-      const creator = res.data.creator;
-      console.log(creator);
+      console.log(post);
       setTitle(post.title);
-      setAuthor(creator.name);
+      setAuthor(post.creator.name);
       setDate(new Date(post.createdAt).toLocaleDateString("en-US"));
       setImage(`http://localhost:8080/${post.imageUrl}`);
       setContent(post.content);
-      setStatus(creator.status);
+      setStatus(post.creator.status);
     });
   }, [postId]);
 

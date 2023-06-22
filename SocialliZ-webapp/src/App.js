@@ -45,11 +45,14 @@ const App = () => {
   });
 
   const mobileNavHandler = (isOpen) => {
-    this.setState({ showMobileNav: isOpen, showBackdrop: isOpen });
+    setShowMobileNav(isOpen);
+    setShowBackdrop(isOpen);
   };
 
   const backdropClickHandler = () => {
-    this.setState({ showBackdrop: false, showMobileNav: false, error: null });
+    setShowBackdrop(false);
+    showMobileNav(false);
+    setError(null);
   };
 
   const logoutHandler = () => {
@@ -82,8 +85,6 @@ const App = () => {
         setAuthLoading(false);
         setError(error);
       });
-    console.log(response);
-
     // Checking if the user is authenticated successfully based on status code
     if (response.status === 422) {
       throw new Error("Validation Failed.");

@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from "react";
-import openSocket from "socket.io-client";
 import Post from "../../components/Feed/Post/Post";
 import Button from "../../components/Button/Button";
 import FeedEdit from "../../components/Feed/FeedEdit/FeedEdit";
@@ -39,7 +38,6 @@ class Feed extends Component {
       .catch(this.catchError);
 
     this.loadPosts();
-    openSocket("http://localhost:8080");
   }
 
   loadPosts = (direction) => {
@@ -266,11 +264,12 @@ class Feed extends Component {
           {this.state.posts.length <= 0 && !this.state.postsLoading ? (
             <p style={{ textAlign: "center" }}>No posts found.</p>
           ) : null}
+
           {!this.state.postsLoading && (
             <Paginator
               onPrevious={this.loadPosts.bind(this, "previous")}
               onNext={this.loadPosts.bind(this, "next")}
-              lastPage={Math.ceil(this.state.totalPosts / 2)}
+              lastPage={Math.ceil(this.state.totalPosts / 5)}
               currentPage={this.state.postPage}
             >
               {this.state.posts.map((post) => (
