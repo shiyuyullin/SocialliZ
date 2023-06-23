@@ -267,10 +267,10 @@ class Feed extends Component {
           ) : null}
           <Grid celled="internally">
             <Grid.Row>
-              <Grid.Column width={3}>
+              <Grid.Column width={2}>
                 <Image src="/images/wireframe/image.png" />
               </Grid.Column>
-              <Grid.Column width={10}>
+              <Grid.Column width={12}>
                 {!this.state.postsLoading && (
                   <Paginator
                     onPrevious={this.loadPosts.bind(this, "previous")}
@@ -299,7 +299,7 @@ class Feed extends Component {
                   </Paginator>
                 )}
               </Grid.Column>
-              <Grid.Column width={3}>
+              <Grid.Column width={2}>
                 <Image src="/images/wireframe/image.png" />
               </Grid.Column>
             </Grid.Row>
