@@ -7,6 +7,7 @@ import Paginator from "../../components/Paginator/Paginator";
 import Loader from "../../components/Loader/Loader";
 import ErrorHandler from "../../components/ErrorHandler/ErrorHandler";
 import "./Feed.css";
+import { Grid, Image } from "semantic-ui-react";
 
 class Feed extends Component {
   state = {
@@ -264,29 +265,45 @@ class Feed extends Component {
           {this.state.posts.length <= 0 && !this.state.postsLoading ? (
             <p style={{ textAlign: "center" }}>No posts found.</p>
           ) : null}
-
-          {!this.state.postsLoading && (
-            <Paginator
-              onPrevious={this.loadPosts.bind(this, "previous")}
-              onNext={this.loadPosts.bind(this, "next")}
-              lastPage={Math.ceil(this.state.totalPosts / 5)}
-              currentPage={this.state.postPage}
-            >
-              {this.state.posts.map((post) => (
-                <Post
-                  key={post._id}
-                  id={post._id}
-                  author={post.creator.name}
-                  date={new Date(post.createdAt).toLocaleDateString("en-US")}
-                  title={post.title}
-                  image={post.imageUrl}
-                  content={post.content}
-                  onStartEdit={this.startEditPostHandler.bind(this, post._id)}
-                  onDelete={this.deletePostHandler.bind(this, post._id)}
-                />
-              ))}
-            </Paginator>
-          )}
+          <Grid celled="internally">
+            <Grid.Row>
+              <Grid.Column width={3}>
+                <Image src="/images/wireframe/image.png" />
+              </Grid.Column>
+              <Grid.Column width={10}>
+                {!this.state.postsLoading && (
+                  <Paginator
+                    onPrevious={this.loadPosts.bind(this, "previous")}
+                    onNext={this.loadPosts.bind(this, "next")}
+                    lastPage={Math.ceil(this.state.totalPosts / 5)}
+                    currentPage={this.state.postPage}
+                  >
+                    {this.state.posts.map((post) => (
+                      <Post
+                        key={post._id}
+                        id={post._id}
+                        author={post.creator.name}
+                        date={new Date(post.createdAt).toLocaleDateString(
+                          "en-US"
+                        )}
+                        title={post.title}
+                        image={post.imageUrl}
+                        content={post.content}
+                        onStartEdit={this.startEditPostHandler.bind(
+                          this,
+                          post._id
+                        )}
+                        onDelete={this.deletePostHandler.bind(this, post._id)}
+                      />
+                    ))}
+                  </Paginator>
+                )}
+              </Grid.Column>
+              <Grid.Column width={3}>
+                <Image src="/images/wireframe/image.png" />
+              </Grid.Column>
+            </Grid.Row>
+          </Grid>
         </section>
       </Fragment>
     );
