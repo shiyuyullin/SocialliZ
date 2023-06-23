@@ -111,9 +111,9 @@ const App = () => {
       .put(
         "/auth/signup",
         {
-          email: authData.signupForm.email.value,
-          password: authData.signupForm.password.value,
-          name: authData.signupForm.name.value,
+          email: authData.email,
+          password: authData.password,
+          name: authData.username,
         },
         {
           headers: {
