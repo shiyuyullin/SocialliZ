@@ -11,6 +11,7 @@ import SinglePostPage from "./pages/Feed/SinglePost/SinglePost";
 import LoginPage from "./pages/Auth/Login";
 import SignupPage from "./pages/Auth/Signup";
 import "./App.css";
+import UserProfile from "./pages/User/UserProfile";
 
 const App = () => {
   axios.defaults.baseURL = "http://localhost:8080";
@@ -174,6 +175,7 @@ const App = () => {
           path="/:postId"
           element={<SinglePostPage userId={userId} token={token} />}
         />
+        <Route path="/user/:userId" element={<UserProfile />} />
       </Routes>
     );
   }
@@ -183,7 +185,13 @@ const App = () => {
       {showBackdrop && <Backdrop onClick={backdropClickHandler} />}
       <ErrorHandler error={error} onHandle={errorHandler} />
       <Layout
-        header={<MainNavigation onLogout={logoutHandler} isAuth={isAuth} />}
+        header={
+          <MainNavigation
+            onLogout={logoutHandler}
+            isAuth={isAuth}
+            userId={userId}
+          />
+        }
         mobileNav={
           <MobileNavigation
             open={showMobileNav}

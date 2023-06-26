@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Form, Button, Container } from "semantic-ui-react";
-import WelcomeBoard from "./WelcomeBoard";
+import WelcomeBoard from "../../components/WelcomeDisplay/WelcomeBoard";
 
 const Login = ({ onLogin, loading }) => {
   const [email, setEmail] = useState("");

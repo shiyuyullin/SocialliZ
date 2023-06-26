@@ -2,7 +2,7 @@ import React from "react";
 import { Menu, Icon } from "semantic-ui-react";
 import { NavLink } from "react-router-dom";
 
-const mainNavigation = ({ onLogout, isAuth }) => {
+const mainNavigation = ({ onLogout, isAuth, userId }) => {
   return (
     <Menu inverted size="large" color="teal">
       <Menu.Item name="home">
@@ -15,6 +15,11 @@ const mainNavigation = ({ onLogout, isAuth }) => {
         </Menu.Item>
       )}
       <Menu.Menu position="right">
+        {isAuth && (
+          <Menu.Item name="userProfile" as={NavLink} to={`user/${userId}`}>
+            Welcome, {userId}
+          </Menu.Item>
+        )}
         {!isAuth && <Menu.Item name="login" as={NavLink} to="/"></Menu.Item>}
         {!isAuth && (
           <Menu.Item name="signup" as={NavLink} to="/signup"></Menu.Item>
