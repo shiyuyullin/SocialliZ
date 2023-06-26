@@ -3,7 +3,6 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Layout from "./components/Layout/Layout";
 import Backdrop from "./components/Backdrop/Backdrop";
-import Toolbar from "./components/Toolbar/Toolbar";
 import MainNavigation from "./components/Navigation/MainNavigation/MainNavigation";
 import MobileNavigation from "./components/Navigation/MobileNavigation/MobileNavigation";
 import ErrorHandler from "./components/ErrorHandler/ErrorHandler";
@@ -184,15 +183,7 @@ const App = () => {
       {showBackdrop && <Backdrop onClick={backdropClickHandler} />}
       <ErrorHandler error={error} onHandle={errorHandler} />
       <Layout
-        header={
-          <Toolbar>
-            <MainNavigation
-              onOpenMobileNav={mobileNavHandler.bind(this, true)}
-              onLogout={logoutHandler}
-              isAuth={isAuth}
-            />
-          </Toolbar>
-        }
+        header={<MainNavigation onLogout={logoutHandler} isAuth={isAuth} />}
         mobileNav={
           <MobileNavigation
             open={showMobileNav}

@@ -1,25 +1,29 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React from "react";
+import { Menu, Icon } from "semantic-ui-react";
+import { NavLink } from "react-router-dom";
 
-import MobileToggle from '../MobileToggle/MobileToggle';
-import Logo from '../../Logo/Logo';
-import NavigationItems from '../NavigationItems/NavigationItems';
+const mainNavigation = ({ onLogout, isAuth }) => {
+  return (
+    <Menu inverted size="large" color="teal">
+      <Menu.Item name="home">
+        <Icon color="black" name="users" />
+        SocialliZ
+      </Menu.Item>
+      {isAuth && (
+        <Menu.Item name="feed" as={NavLink} to="/">
+          Feed
+        </Menu.Item>
+      )}
+      <Menu.Menu position="right">
+        {!isAuth && <Menu.Item name="login" as={NavLink} to="/"></Menu.Item>}
+        {!isAuth && (
+          <Menu.Item name="signup" as={NavLink} to="/signup"></Menu.Item>
+        )}
 
-import './MainNavigation.css';
-
-const mainNavigation = props => (
-  <nav className="main-nav">
-    <MobileToggle onOpen={props.onOpenMobileNav} />
-    <div className="main-nav__logo">
-      <NavLink to="/">
-        <Logo />
-      </NavLink>
-    </div>
-    <div className="spacer" />
-    <ul className="main-nav__items">
-      <NavigationItems isAuth={props.isAuth} onLogout={props.onLogout} />
-    </ul>
-  </nav>
-);
+        {isAuth && <Menu.Item name="logout" onClick={onLogout} />}
+      </Menu.Menu>
+    </Menu>
+  );
+};
 
 export default mainNavigation;

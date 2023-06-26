@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Form, Button, Container } from "semantic-ui-react";
+import WelcomeBoard from "./WelcomeBoard";
 
 const Login = ({ onLogin, loading }) => {
   const [email, setEmail] = useState("");
@@ -15,6 +16,7 @@ const Login = ({ onLogin, loading }) => {
 
   return (
     <Container textAlign="justified">
+      <WelcomeBoard />
       <Form
         onSubmit={(event) =>
           onLogin(event, {
