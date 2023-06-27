@@ -4,10 +4,10 @@ import Button from "../../components/Button/Button";
 import FeedEdit from "../../components/Feed/FeedEdit/FeedEdit";
 import Input from "../../components/Form/Input/Input";
 import Paginator from "../../components/Paginator/Paginator";
-import Loader from "../../components/Loader/Loader";
 import ErrorHandler from "../../components/ErrorHandler/ErrorHandler";
 import "./Feed.css";
 import { Grid, Image } from "semantic-ui-react";
+import { Loader } from "semantic-ui-react";
 
 class Feed extends Component {
   state = {
@@ -259,7 +259,7 @@ class Feed extends Component {
         <section className="feed">
           {this.state.postsLoading && (
             <div style={{ textAlign: "center", marginTop: "2rem" }}>
-              <Loader />
+              <Loader inverted>Loading</Loader>
             </div>
           )}
           {this.state.posts.length <= 0 && !this.state.postsLoading ? (

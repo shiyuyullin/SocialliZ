@@ -12,10 +12,15 @@ import LoginPage from "./pages/Auth/Login";
 import SignupPage from "./pages/Auth/Signup";
 import "./App.css";
 import UserProfile from "./pages/User/UserProfile";
+import { useSelector, useDispatch } from "react-redux";
+import { authed, notAuthed } from "./util/States/authState";
 
 const App = () => {
   axios.defaults.baseURL = "http://localhost:8080";
   const navigate = useNavigate();
+
+  const count = useSelector((state) => state.isAuth.value);
+  const dispatch = useDispatch();
 
   const [showBackdrop, setShowBackdrop] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
@@ -42,6 +47,7 @@ const App = () => {
     setToken(token);
     setUserId(userId);
     setAutoLogout(remainingMilliseconds);
+    console.log(count);
   });
 
   const mobileNavHandler = (isOpen) => {
