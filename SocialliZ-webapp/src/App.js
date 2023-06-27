@@ -61,6 +61,7 @@ const App = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("expiryDate");
     localStorage.removeItem("userId");
+    navigate("/");
   };
 
   const loginHandler = async (event, authData) => {
@@ -175,7 +176,7 @@ const App = () => {
           path="/:postId"
           element={<SinglePostPage userId={userId} token={token} />}
         />
-        <Route path="/user/:userId" element={<UserProfile />} />
+        <Route path="/user/:userId" element={<UserProfile token={token} />} />
       </Routes>
     );
   }

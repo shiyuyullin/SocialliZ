@@ -8,6 +8,7 @@ require("dotenv").config();
 
 const feedRoutes = require("./routes/feed");
 const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/user");
 const post = require("./models/post");
 const { generateRandomPosts } = require("./db-data-generator/randomPosts");
 
@@ -41,6 +42,7 @@ app.use(bodyParser.json());
 app.use("/images", express.static(path.join(__dirname, "images")));
 app.use(multer({ storage: storage, fileFilter: fileFilter }).single("image"));
 
+app.use("/user", userRoutes);
 app.use("/feed", feedRoutes);
 app.use("/auth", authRoutes);
 
