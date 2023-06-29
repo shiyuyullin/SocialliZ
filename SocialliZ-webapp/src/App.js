@@ -2,32 +2,30 @@ import React, { Fragment, useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Layout from "./components/Layout/Layout";
-import Backdrop from "./components/Backdrop/Backdrop";
 import MainNavigation from "./components/Navigation/MainNavigation/MainNavigation";
 import MobileNavigation from "./components/Navigation/MobileNavigation/MobileNavigation";
-import ErrorHandler from "./components/ErrorHandler/ErrorHandler";
 import FeedPage from "./pages/Feed/Feed";
 import SinglePostPage from "./pages/Feed/SinglePost/SinglePost";
 import LoginPage from "./pages/Auth/Login";
 import SignupPage from "./pages/Auth/Signup";
 import "./App.css";
 import UserProfile from "./pages/User/UserProfile";
+import Modal from "./components/Modal/Modal";
 import { useSelector, useDispatch } from "react-redux";
 import { authed, notAuthed } from "./util/States/authState";
+import { open, close } from "./util/States/modalState";
+import { setErrorContent } from "./util/States/errorState";
 
 const App = () => {
   axios.defaults.baseURL = "http://localhost:8080";
   const navigate = useNavigate();
 
-  const count = useSelector((state) => state.isAuth.value);
+  const authState = useSelector((state) => state.authState.value);
   const dispatch = useDispatch();
 
-  const [showBackdrop, setShowBackdrop] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
-  const [isAuth, setIsAuth] = useState(false);
   const [token, setToken] = useState(null);
   const [userId, setUserId] = useState(null);
-  const [error, setError] = useState(null);
   const [authLoading, setAuthLoading] = useState(false);
 
   useEffect(() => {
@@ -43,26 +41,18 @@ const App = () => {
     const userId = localStorage.getItem("userId");
     const remainingMilliseconds =
       new Date(expiryDate).getTime() - new Date().getTime();
-    setIsAuth(true);
+    dispatch(authed());
     setToken(token);
     setUserId(userId);
     setAutoLogout(remainingMilliseconds);
-    console.log(count);
   });
 
   const mobileNavHandler = (isOpen) => {
     setShowMobileNav(isOpen);
-    setShowBackdrop(isOpen);
-  };
-
-  const backdropClickHandler = () => {
-    setShowBackdrop(false);
-    showMobileNav(false);
-    setError(null);
   };
 
   const logoutHandler = () => {
-    setIsAuth(false);
+    dispatch(notAuthed());
     setToken(null);
     localStorage.removeItem("token");
     localStorage.removeItem("expiryDate");
@@ -88,27 +78,37 @@ const App = () => {
       )
       .catch((error) => {
         console.log(error);
-        setIsAuth(false);
+        dispatch(notAuthed());
         setAuthLoading(false);
-        setError(error);
+        // Checking if the user is authenticated successfully based on status code
+        const statusCode = error.request.status;
+        if (statusCode === 401) {
+          dispatch(
+            setErrorContent(
+              "Login failed. Please check your username and password."
+            )
+          );
+          dispatch(open());
+        } else if (statusCode !== 200 && statusCode !== 201) {
+          dispatch(setErrorContent("Could not authenticate you! "));
+          dispatch(open());
+        }
+        return;
       });
-    // Checking if the user is authenticated successfully based on status code
-    if (response.status === 422) {
-      throw new Error("Validation Failed.");
-    } else if (response.status !== 200 && response.status !== 201) {
-      throw new Error("Could not authenticate you!");
-    }
+
     // By executing the following code, it is known that the user is authenticated
-    setIsAuth(true);
-    setUserId(response.data.userId);
-    setToken(response.data.token);
-    setAuthLoading(false);
-    localStorage.setItem("token", response.data.token);
-    localStorage.setItem("userId", response.data.userId);
-    const remainingMilliseconds = 60 * 60 * 1000;
-    const expiryDate = new Date(new Date().getTime() + remainingMilliseconds);
-    localStorage.setItem("expiryDate", expiryDate.toISOString());
-    setAutoLogout(remainingMilliseconds);
+    if (response) {
+      dispatch(authed());
+      setUserId(response.data.userId);
+      setToken(response.data.token);
+      setAuthLoading(false);
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userId", response.data.userId);
+      const remainingMilliseconds = 60 * 60 * 1000;
+      const expiryDate = new Date(new Date().getTime() + remainingMilliseconds);
+      localStorage.setItem("expiryDate", expiryDate.toISOString());
+      setAutoLogout(remainingMilliseconds);
+    }
   };
 
   const signupHandler = async (event, authData) => {
@@ -130,23 +130,25 @@ const App = () => {
       )
       .catch((error) => {
         console.log(error);
-        setIsAuth(false);
+        dispatch(notAuthed());
         setAuthLoading(false);
-        setError(error);
       });
     console.log(response);
     // User creation failed
     if (response.status === 422) {
-      throw new Error(
-        "Signup failed. Make sure the email address isn't used yet!"
+      dispatch(
+        setErrorContent(
+          "Signup failed. Make sure the email address isn't used yet!"
+        )
       );
+      dispatch(open());
     }
     if (response.status !== 200 && response.status !== 201) {
-      console.log("Error!");
-      throw new Error("Creating a user failed!");
+      dispatch(setErrorContent("Creating user failed."));
+      dispatch(open());
     }
     // User created
-    setIsAuth(false);
+    dispatch(notAuthed());
     setAuthLoading(false);
     navigate("/");
   };
@@ -155,10 +157,6 @@ const App = () => {
     setTimeout(() => {
       logoutHandler();
     }, milliseconds);
-  };
-
-  const errorHandler = () => {
-    setError(null);
   };
 
   let routes = (
@@ -174,7 +172,7 @@ const App = () => {
     </Routes>
   );
 
-  if (isAuth) {
+  if (authState && token) {
     routes = (
       <Routes>
         <Route path="/" element={<FeedPage userId={userId} token={token} />} />
@@ -189,13 +187,12 @@ const App = () => {
 
   return (
     <Fragment>
-      {showBackdrop && <Backdrop onClick={backdropClickHandler} />}
-      <ErrorHandler error={error} onHandle={errorHandler} />
+      <Modal />
       <Layout
         header={
           <MainNavigation
             onLogout={logoutHandler}
-            isAuth={isAuth}
+            isAuth={authState}
             userId={userId}
           />
         }
@@ -205,7 +202,7 @@ const App = () => {
             mobile
             onChooseItem={mobileNavHandler.bind(this, false)}
             onLogout={logoutHandler}
-            isAuth={isAuth}
+            isAuth={authState}
           />
         }
       />

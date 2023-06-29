@@ -14,16 +14,22 @@ const Login = ({ onLogin, loading }) => {
     setPassword(event.target.value);
   };
 
+  const clearForm = () => {
+    setEmail("");
+    setPassword("");
+  };
+
   return (
     <Container textAlign="justified">
       <WelcomeBoard />
       <Form
-        onSubmit={(event) =>
+        onSubmit={(event) => {
           onLogin(event, {
             email: email,
             password: password,
-          })
-        }
+          });
+          clearForm();
+        }}
       >
         <Form.Field fluid="true">
           <label>Email</label>
@@ -33,6 +39,7 @@ const Login = ({ onLogin, loading }) => {
             required
             placeholder="email@email.com"
             onChange={handleEmailChange}
+            value={email}
           />
         </Form.Field>
         <Form.Field fluid="true">
@@ -43,6 +50,7 @@ const Login = ({ onLogin, loading }) => {
             required
             placeholder="password"
             onChange={handlePasswordChange}
+            value={password}
           />
         </Form.Field>
         <Button type="submit" loading={loading}>
