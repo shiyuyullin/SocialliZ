@@ -6,7 +6,7 @@ import "./Modal.css";
 
 const editPostModal = (props) =>
   ReactDOM.createPortal(
-    <div className="modal">
+    <div className="modal__general">
       <header className="modal__header">
         <h1>{props.title}</h1>
       </header>

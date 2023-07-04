@@ -13,6 +13,11 @@ import {
 import { setUserId } from "../../util/States/userIdState";
 import { setToken } from "../../util/States/tokenState";
 import { setAutoLogout } from "../../util/Handlers/logoutHandler";
+import {
+  setUserName,
+  setUserEmail,
+  setUserStatus,
+} from "../../util/States/userState";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -68,12 +73,14 @@ const Login = () => {
         }
         return;
       });
-
     // By executing the following code, it is known that the user is authenticated
     if (response) {
       dispatch(authed());
       dispatch(setUserId(response.data.userId));
       dispatch(setToken(response.data.token));
+      dispatch(setUserName(response.data.name));
+      dispatch(setUserEmail(response.data.email));
+      dispatch(setUserStatus(response.data.status));
       dispatch(notAuthLoading());
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("userId", response.data.userId);

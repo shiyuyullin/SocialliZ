@@ -5,6 +5,7 @@ import errorReducer from "../States/errorState";
 import authLoadingReducer from "../States/authLoadingState";
 import userIdReducer from "../States/userIdState";
 import tokenReducer from "../States/tokenState";
+import userReducer from "../States/userState";
 
 export default configureStore({
   reducer: {
@@ -14,5 +15,6 @@ export default configureStore({
     authLoadingState: authLoadingReducer,
     userIdState: userIdReducer,
     tokenState: tokenReducer,
+    userState: userReducer,
   },
 });

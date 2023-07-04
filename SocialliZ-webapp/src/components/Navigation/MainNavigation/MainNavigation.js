@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { logoutHandler } from "../../../util/Handlers/logoutHandler";
 
 const mainNavigation = () => {
+  const user = useSelector((state) => state.userState.value);
   const userId = useSelector((state) => state.userIdState.value);
   const isAuth = useSelector((state) => state.authState.value);
   return (
@@ -21,7 +22,7 @@ const mainNavigation = () => {
       <Menu.Menu position="right">
         {isAuth && (
           <Menu.Item name="userProfile" as={NavLink} to={`user/${userId}`}>
-            Welcome, {userId}
+            Welcome, {user.name}
           </Menu.Item>
         )}
         {!isAuth && <Menu.Item name="login" as={NavLink} to="/"></Menu.Item>}
