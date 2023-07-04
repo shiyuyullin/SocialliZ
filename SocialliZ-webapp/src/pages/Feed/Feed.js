@@ -4,7 +4,6 @@ import Button from "../../components/Button/Button";
 import FeedEdit from "../../components/Feed/FeedEdit/FeedEdit";
 import Input from "../../components/Form/Input/Input";
 import Paginator from "../../components/Paginator/Paginator";
-import ErrorHandler from "../../components/ErrorHandler/ErrorHandler";
 import "./Feed.css";
 import { Grid, Image } from "semantic-ui-react";
 import { Loader } from "semantic-ui-react";
@@ -229,7 +228,6 @@ class Feed extends Component {
   render() {
     return (
       <Fragment>
-        <ErrorHandler error={this.state.error} onHandle={this.errorHandler} />
         <FeedEdit
           editing={this.state.isEditing}
           selectedPost={this.state.editPost}

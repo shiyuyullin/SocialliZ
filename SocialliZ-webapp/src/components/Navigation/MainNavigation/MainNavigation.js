@@ -1,8 +1,12 @@
 import React from "react";
 import { Menu, Icon } from "semantic-ui-react";
 import { NavLink } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { logoutHandler } from "../../../util/Handlers/logoutHandler";
 
-const mainNavigation = ({ onLogout, isAuth, userId }) => {
+const mainNavigation = () => {
+  const userId = useSelector((state) => state.userIdState.value);
+  const isAuth = useSelector((state) => state.authState.value);
   return (
     <Menu inverted size="large" color="teal">
       <Menu.Item name="home">
@@ -25,7 +29,7 @@ const mainNavigation = ({ onLogout, isAuth, userId }) => {
           <Menu.Item name="signup" as={NavLink} to="/signup"></Menu.Item>
         )}
 
-        {isAuth && <Menu.Item name="logout" onClick={onLogout} />}
+        {isAuth && <Menu.Item name="logout" onClick={logoutHandler} />}
       </Menu.Menu>
     </Menu>
   );
