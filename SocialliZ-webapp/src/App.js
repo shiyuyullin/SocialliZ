@@ -68,10 +68,7 @@ const App = () => {
           path="/:postId"
           element={<SinglePostPage userId={userIdState} token={tokenState} />}
         />
-        <Route
-          path="/user/:userId"
-          element={<UserProfile token={tokenState} />}
-        />
+        <Route path="/user/:userId" element={<UserProfile />} />
       </Routes>
     );
   }

@@ -1,11 +1,8 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
 import { Icon, Header, Container, Divider } from "semantic-ui-react";
 
-const UserProfile = ({ token }) => {
-  const { userId } = useParams();
+const UserProfile = () => {
   const user = useSelector((state) => state.userState.value);
   return (
     <Container textAlign="center">
